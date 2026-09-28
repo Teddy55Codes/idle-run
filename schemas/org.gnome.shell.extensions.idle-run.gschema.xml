@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="idle-run">
+  <schema id="org.gnome.shell.extensions.idle-run" path="/org/gnome/shell/extensions/idle-run/">
+    <key name="idle-seconds" type="i">
+      <default>300</default>
+      <range min="5" max="86400"/>
+      <summary>Idle time until the selected app is run</summary>
+      <description>
+        Number of seconds the screen must be idle (with no session
+        inhibitor active) before the selected app is run.
+      </description>
+    </key>
+    <key name="idle-app" type="s">
+      <default></default>
+      <summary>The app to run when the idle time is reached.</summary>
+      <description>
+        The path (or name it in $PATH) to an application to run when the idle timer is reached.
+      </description>
+    </key>
+    <key name="idle-app-args" type="s">
+      <default></default>
+      <summary>The arguments to supply to the selected app.</summary>
+      <description>
+        The arguments to supply to the selected application.
+      </description>
+    </key>
+  </schema>
+</schemalist>
