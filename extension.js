@@ -151,7 +151,7 @@ export default class PlainExampleExtension extends Extension {
 
         if (this._idleAppArgs) {
             this._subProc = new Gio.Subprocess({
-                    argv: [this._idleApp, this._idleAppArgs],
+                    argv: [this._idleApp, ...this._idleAppArgs.split(" ")],
                     flags: Gio.SubprocessFlags.NONE
                 });
         } else {
