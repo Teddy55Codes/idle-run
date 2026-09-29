@@ -2,6 +2,24 @@
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+
+const DBusSessionManagerIface = '<node>\
+  <interface name="org.gnome.SessionManager">\
+    <method name="Inhibit">\
+        <arg type="s" direction="in" />\
+        <arg type="u" direction="in" />\
+        <arg type="s" direction="in" />\
+        <arg type="u" direction="in" />\
+        <arg type="u" direction="out" />\
+    </method>\
+    <method name="Uninhibit">\
+        <arg type="u" direction="in" />\
+    </method>\
+  </interface>\
+</node>';
+
+const DBusSessionManagerProxy = Gio.DBusProxy.makeProxyWrapper(DBusSessionManagerIface);
 
 const State = {
     ACTIVE: 0,
@@ -11,23 +29,29 @@ const State = {
 
 export default class PlainExampleExtension extends Extension {
     enable() {
+        this._sessionManager = new DBusSessionManagerProxy(Gio.DBus.session,
+            'org.gnome.SessionManager',
+            '/org/gnome/SessionManager');
+
         this._settings = this.getSettings();
         this._syncSettings();
 
         this._settingsSignalsIds = [
             this._settings.connect('changed::idle-seconds', () => this._syncSettings()),
+            this._settings.connect('changed::inhibit-auto-suspend', () => this._syncSettings()),
             this._settings.connect('changed::idle-app', () => this._syncSettings()),
             this._settings.connect('changed::idle-app-args', () => this._syncSettings())
         ]
-        
+
         this._state = State.ACTIVE; 
     }
 
     disable() {
         this._settings = null;
 
-        try {           
+        try {
             this._removeIdleMonitor();
+            this._removeInhibitor()
         } catch (e) {
             logError(e, `[Idle-run] Error during disabling of extension`);
         }
@@ -41,7 +65,7 @@ export default class PlainExampleExtension extends Extension {
             logError(e, `[Idle-run] Error setting up idle monitor`);
         }
     }
-        
+
 
     _removeIdleMonitor() {
         if (this._idleMonitor) {
@@ -69,6 +93,7 @@ export default class PlainExampleExtension extends Extension {
         this._removeIdleMonitor();
 
         this._idleSeconds = this._settings.get_int('idle-seconds');
+        this._inhibit_auto_suspend = this._settings.get_boolean('inhibit-auto-suspend');
         this._idleApp = this._settings.get_string('idle-app');
         this._idleAppArgs = this._settings.get_string('idle-app-args');
 
@@ -79,6 +104,9 @@ export default class PlainExampleExtension extends Extension {
         if (this._state === State.RUNNING) return;
         this._state = State.IDLE;
         this._armActiveWatch();
+        if (this._inhibit_auto_suspend) {
+            this._setupInhibitor();
+        }
 
         this._runApp();
     }
@@ -86,8 +114,36 @@ export default class PlainExampleExtension extends Extension {
     _onSystemActive() {
         if (this._state === State.ACTIVE) return;
         this._state = State.ACTIVE;
+        if (this._inhibit_auto_suspend) {
+            this._removeInhibitor();
+        }
 
         this._stopApp();
+    }
+
+    _setupInhibitor() {
+        this._inhibitorCookie = this._sessionManager.call_sync(
+            'Inhibit', 
+            GLib.Variant.new_tuple(
+                [
+                    GLib.Variant.new_string('idle-run-gnome-extension'),
+                    GLib.Variant.new_uint32(0),
+                    GLib.Variant.new_string('Inhibited by Idle Run GNOME extension'),
+                    GLib.Variant.new_uint32(4) // disable suspending
+                ]
+            ),
+            Gio.DBusCallFlags.NONE, -1, null)
+            .get_child_value(0).get_uint32();
+
+        if (!this._inhibitorCookie) {
+            log('[idle-run] Failed to add inhibitor')
+        }
+    }
+
+    _removeInhibitor() {
+        if (!this._inhibitorCookie) return;
+        this._sessionManager.UninhibitRemote(this._inhibitorCookie);
+        this._inhibitorCookie = null;
     }
 
     _runApp() {
