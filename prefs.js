@@ -36,7 +36,7 @@ export default class IdleRunPrefs extends ExtensionPreferences {
 
         const inhibitAutoSuspendRow = new Adw.SwitchRow({
             title: 'Disable Auto Suspend',
-            subtitle: 'Whether or not to block auto suspend. (doesn\'t disable screen blank)',
+            subtitle: 'Whether or not to block auto suspend (doesn\'t disable screen blank)',
             active: settings.get_boolean('inhibit-auto-suspend')
         })
         
