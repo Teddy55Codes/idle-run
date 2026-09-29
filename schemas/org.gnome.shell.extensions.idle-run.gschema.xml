@@ -10,6 +10,13 @@
         inhibitor active) before the selected app is run.
       </description>
     </key>
+    <key name="inhibit-auto-suspend" type="b">
+      <default>false</default>
+      <summary>Disable auto suspend.</summary>
+      <description>
+        Whether or not to block auto suspend. (does not disable screen blank)
+      </description>
+    </key>
     <key name="idle-app" type="s">
       <default>""</default>
       <summary>The app to run when the idle time is reached.</summary>

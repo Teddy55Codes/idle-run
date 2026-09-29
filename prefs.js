@@ -5,13 +5,6 @@ import Gtk from 'gi://Gtk';
 import Gio from 'gi://Gio';
 import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-const SettingsKey = {
-    IDLE_SECONDS: 'idle-seconds',
-    IDLE_APP: 'idle-app',
-    IDLE_APP_ARGS: 'idle-app-args'
-};
-
-
 export default class IdleRunPrefs extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         window.title = "Idle Run Settings"
@@ -37,23 +30,30 @@ export default class IdleRunPrefs extends ExtensionPreferences {
                 step_increment: 10,
                 page_increment: 10,
                 page_size: 0,
-                value: settings.get_int(SettingsKey.IDLE_SECONDS)
+                value: settings.get_int('idle-seconds')
             })
         });
+
+        const inhibitAutoSuspendRow = new Adw.SwitchRow({
+            title: 'Disable Auto Suspend',
+            subtitle: 'Whether or not to block auto suspend. (doesn\'t disable screen blank)',
+            active: settings.get_boolean('inhibit-auto-suspend')
+        })
         
         const idleAppRow = new Adw.EntryRow({
             title: 'Application To Run',
             input_purpose: 'The app to run when the idle time is reached',
-            text: settings.get_string(SettingsKey.IDLE_APP)
+            text: settings.get_string('idle-app')
         })
 
         const idleAppArgsRow = new Adw.EntryRow({
             title: 'Application Arguments',
             input_purpose: 'The arguments to supply to the selected app',
-            text: settings.get_string(SettingsKey.IDLE_APP_ARGS)
+            text: settings.get_string('idle-app-args')
         })
         
         behaviorGroup.add(idleTimeRow)
+        behaviorGroup.add(inhibitAutoSuspendRow)
         actionGroup.add(idleAppRow)
         actionGroup.add(idleAppArgsRow)
 
@@ -62,8 +62,9 @@ export default class IdleRunPrefs extends ExtensionPreferences {
 
         window.add(page);
 
-        settings.bind(SettingsKey.IDLE_APP, idleAppRow, 'text', Gio.SettingsBindFlags.DEFAULT);
-        settings.bind(SettingsKey.IDLE_APP_ARGS, idleAppArgsRow, 'text', Gio.SettingsBindFlags.DEFAULT);
-        settings.bind(SettingsKey.IDLE_SECONDS, idleTimeRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('idle-seconds', idleTimeRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('inhibit-auto-suspend', inhibitAutoSuspendRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('idle-app', idleAppRow, 'text', Gio.SettingsBindFlags.DEFAULT);
+        settings.bind('idle-app-args', idleAppArgsRow, 'text', Gio.SettingsBindFlags.DEFAULT);
     }
 }
