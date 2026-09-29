@@ -91,6 +91,7 @@ export default class PlainExampleExtension extends Extension {
     }
 
     _runApp() {
+        if (!this._idleApp) return; 
         this._subProc = new Gio.Subprocess({
                 argv: [this._idleApp, this._idleAppArgs],
                 flags: Gio.SubprocessFlags.NONE
