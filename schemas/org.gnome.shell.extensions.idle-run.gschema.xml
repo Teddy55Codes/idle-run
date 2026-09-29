@@ -4,7 +4,7 @@
     <key name="idle-seconds" type="i">
       <default>300</default>
       <range min="5" max="86400"/>
-      <summary>Idle time until the selected app is run.</summary>
+      <summary>Idle time until the selected app is run in seconds.</summary>
       <description>
         Number of seconds the screen must be idle (with no session
         inhibitor active) before the selected app is run.

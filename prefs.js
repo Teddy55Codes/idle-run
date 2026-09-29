@@ -30,7 +30,7 @@ export default class IdleRunPrefs extends ExtensionPreferences {
 
         const idleTimeRow = new Adw.SpinRow({
             title: 'Idle Time',
-            subtitle: 'Idle time until the selected app is run',
+            subtitle: 'Idle time until the selected app is run in seconds',
             adjustment: new Gtk.Adjustment({
                 lower: 5,
                 upper: 86400,
