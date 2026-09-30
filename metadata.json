@@ -2,7 +2,7 @@
   "name": "Idle Run",
   "description": "Small extension to start an application after idle and stop it once the user becomes active again. Mainly used to run screen saver apps.",
   "uuid": "idle-run@teddy.email",
-  "shell-version": ["45", "46", "47", "48", "49", "50", "51"],
+  "shell-version": ["48", "49", "50", "51"],
   "url": "https://github.com/teddy55codes/idle-run",
   "settings-schema": "org.gnome.shell.extensions.idle-run"
 }
