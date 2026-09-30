@@ -41,21 +41,19 @@ export default class PlainExampleExtension extends Extension {
             this._settings.connect('changed::inhibit-auto-suspend', () => this._syncSettings()),
             this._settings.connect('changed::idle-app', () => this._syncSettings()),
             this._settings.connect('changed::idle-app-args', () => this._syncSettings())
-        ]
+        ];
 
         this._state = State.ACTIVE; 
     }
 
     disable() {
-        for (const signal in this._settingsSignalsIds) {
-            this._settings.disconnect(signal);
-        }
+        this._settingsSignalsIds.forEach((signal) => this._settings.disconnect(signal));
 
         this._settings = null;
 
         try {
             this._removeIdleMonitor();
-            this._removeInhibitor()
+            this._removeInhibitor();
         } catch (e) {
             logError(e, `[Idle-run] Error during disabling of extension`);
         }
