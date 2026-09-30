@@ -36,17 +36,17 @@ export default class PlainExampleExtension extends Extension {
         this._syncSettings();
 
         this._settingsSignalsIds = [
-            this._settings.connect('changed::idle-seconds', () => this._syncSettings()),
-            this._settings.connect('changed::inhibit-auto-suspend', () => this._syncSettings()),
-            this._settings.connect('changed::idle-app', () => this._syncSettings()),
-            this._settings.connect('changed::idle-app-args', () => this._syncSettings())
+            this._settings.connectObject('changed::idle-seconds', () => this._syncSettings()),
+            this._settings.connectObject('changed::inhibit-auto-suspend', () => this._syncSettings()),
+            this._settings.connectObject('changed::idle-app', () => this._syncSettings()),
+            this._settings.connectObject('changed::idle-app-args', () => this._syncSettings())
         ];
 
         this._state = State.ACTIVE; 
     }
 
     disable() {
-        this._settingsSignalsIds.forEach((signal) => this._settings.disconnect(signal));
+        this._settingsSignalsIds.forEach((signal) => this._settings.disconnectObject(signal));
         this._settings = null;
 
         this._sessionManager = null;
