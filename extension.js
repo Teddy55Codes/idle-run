@@ -19,8 +19,6 @@ const DBusSessionManagerIface = '<node>\
   </interface>\
 </node>';
 
-const DBusSessionManagerProxy = Gio.DBusProxy.makeProxyWrapper(DBusSessionManagerIface);
-
 const State = {
     ACTIVE: 0,
     IDLE: 1,
@@ -29,7 +27,8 @@ const State = {
 
 export default class PlainExampleExtension extends Extension {
     enable() {
-        this._sessionManager = new DBusSessionManagerProxy(Gio.DBus.session,
+        this._dBusSessionManagerProxy = Gio.DBusProxy.makeProxyWrapper(DBusSessionManagerIface);
+        this._sessionManager = new this._dBusSessionManagerProxy(Gio.DBus.session,
             'org.gnome.SessionManager',
             '/org/gnome/SessionManager');
 
@@ -48,8 +47,10 @@ export default class PlainExampleExtension extends Extension {
 
     disable() {
         this._settingsSignalsIds.forEach((signal) => this._settings.disconnect(signal));
-
         this._settings = null;
+
+        this._sessionManager = null;
+        this._dBusSessionManagerProxy = null;
 
         try {
             this._removeIdleMonitor();
