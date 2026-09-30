@@ -47,6 +47,10 @@ export default class PlainExampleExtension extends Extension {
     }
 
     disable() {
+        for (const signal in this._settingsSignalsIds) {
+            this._settings.disconnect(signal);
+        }
+
         this._settings = null;
 
         try {
@@ -136,7 +140,7 @@ export default class PlainExampleExtension extends Extension {
             .get_child_value(0).get_uint32();
 
         if (!this._inhibitorCookie) {
-            log('[idle-run] Failed to add inhibitor')
+            logError(new Error('[idle-run] Failed to add inhibitor'));
         }
     }
 
@@ -169,7 +173,7 @@ export default class PlainExampleExtension extends Extension {
                     proc.wait_finish(res);
                     if (!proc.get_successful()) {
                         if (this._state === State.RUNNING) {
-                            logError(new Error(`[Idle-run] spawned subprocess stopped`));
+                            logError(new Error('[Idle-run] spawned subprocess stopped'));
                             if (this._subProc === proc) this._subProc = null;
                             return;
                         }
